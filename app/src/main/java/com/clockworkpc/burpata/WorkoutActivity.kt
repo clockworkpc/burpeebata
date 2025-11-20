@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.WindowManager
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -55,7 +56,26 @@ class WorkoutActivity : AppCompatActivity() {
         initializeViews()
         getWorkoutParameters()
         initializeSoundPool()
+        setupBackPressHandler()
         startWorkout()
+    }
+
+    private fun setupBackPressHandler() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                AlertDialog.Builder(this@WorkoutActivity)
+                    .setMessage("Are you sure you want to quit the workout?")
+                    .setPositiveButton("Yes") { dialog, _ ->
+                        dialog.dismiss()
+                        isEnabled = false
+                        onBackPressedDispatcher.onBackPressed()
+                    }
+                    .setNegativeButton("No") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+        })
     }
 
     private fun initializeViews() {
@@ -192,18 +212,5 @@ class WorkoutActivity : AppCompatActivity() {
         countDownTimer?.cancel()
         soundPool.release()
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-    }
-
-    override fun onBackPressed() {
-        AlertDialog.Builder(this)
-            .setMessage("Are you sure you want to quit the workout?")
-            .setPositiveButton("Yes") { dialog, _ ->
-                dialog.dismiss()
-                super.onBackPressed()
-            }
-            .setNegativeButton("No") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
     }
 }
