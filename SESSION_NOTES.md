@@ -96,21 +96,27 @@ Reference: https://busydadtraining.com/the-two-sacred-movements/
 - [x] Research audio playback options in Flutter
   - Recommended package: `audioplayers` - simple, well-maintained, perfect for short sound effects
   - Alternative: `just_audio` for more complex needs
-
-**In Progress:**
-- [ ] Source/create audio files (countdown beeps, sports whistle, boxing bell)
+- [x] Source/create audio files (countdown beeps, sports whistle, boxing bell)
   - Created `assets/audio/` directory
-  - CC0 sources identified:
-    - **Boxing bell:** BigSoundBank (https://bigsoundbank.com/boxing-bell-1-s1926.html) - CC0
-    - **Countdown beep:** Pixabay (https://pixabay.com/sound-effects/search/countdown%20beep/) - CC0
-    - **Whistle:** Mixkit (https://mixkit.co/free-sound-effects/whistle/) - royalty-free
+  - Downloaded CC0 audio files:
+    - **Boxing bell:** `boxing_bell.mp3` from BigSoundBank (CC0)
+    - **Countdown beep:** `countdown_beep.mp3` from Pixabay (CC0)
+    - **Whistle:** `whistle.mp3` from Mixkit (royalty-free)
+- [x] Set up audio player package in Flutter project
+  - Added `audioplayers: ^5.2.1` to `pubspec.yaml`
+  - Configured assets in `pubspec.yaml`
+- [x] Created `AudioService` class (`lib/services/audio_service.dart`)
+  - Singleton pattern for app-wide audio management
+  - Pre-loads audio files for faster playback
+  - Methods: `playCountdownBeep()`, `playWhistle()`, `playBell()`
+- [x] Integrated audio triggers into `TimerService`
+  - Countdown beep plays at start of countdown and each second during countdown
+  - Whistle plays when work period starts
+  - Bell plays when work period ends
 
 **Pending:**
-- [ ] Set up audio player package in Flutter project
-- [ ] Implement countdown audio (3 seconds before set start)
-- [ ] Implement sports whistle sound for set start
-- [ ] Implement boxing ring bell sound for set end
 - [ ] Test audio cues with workout timer flow
+- [ ] Run `./flutter.sh pub get` to install audioplayers package
 
 ### Implementation Notes
 
@@ -125,10 +131,12 @@ Reference: https://busydadtraining.com/the-two-sacred-movements/
 - `lib/screens/timer_screen.dart` - UI that listens to timer
 
 ### Next Steps
-1. Download audio files from identified CC0 sources
-2. Add `audioplayers` package to `pubspec.yaml`
-3. Create `AudioService` class
-4. Integrate audio triggers into `TimerService`
+1. ~~Download audio files from identified CC0 sources~~ ✅
+2. ~~Add `audioplayers` package to `pubspec.yaml`~~ ✅
+3. ~~Create `AudioService` class~~ ✅
+4. ~~Integrate audio triggers into `TimerService`~~ ✅
+5. Run `./flutter.sh pub get` to install new dependencies
+6. Build and test the app with audio cues
 
 ## Commands Reference
 

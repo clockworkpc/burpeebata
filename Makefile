@@ -28,3 +28,6 @@ ps:
 
 doctor:
 	docker compose exec flutter flutter doctor
+
+apk:
+	docker compose exec flutter flutter build apk --release --verbose

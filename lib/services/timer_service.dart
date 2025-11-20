@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../models/workout_config.dart';
+import 'audio_service.dart';
 
 enum TimerState {
   idle,
@@ -18,6 +19,7 @@ class TimerService extends ChangeNotifier {
   int _totalSets = 0;
   int _workSeconds = 0;
   int _restSeconds = 0;
+  final AudioService _audioService = AudioService();
 
   static const int _countdownSeconds = 3;
 
@@ -44,7 +46,9 @@ class TimerService extends ChangeNotifier {
     return 0;
   }
 
-  void startWorkout(WorkoutConfig config) {
+  Future<void> startWorkout(WorkoutConfig config) async {
+    await _audioService.init();
+
     _totalSets = config.numberOfSets;
     _workSeconds = config.secondsPerSet;
     _restSeconds = config.restBetweenSets;
@@ -56,6 +60,8 @@ class TimerService extends ChangeNotifier {
   void _startCountdown() {
     _state = TimerState.countdown;
     _currentSeconds = _countdownSeconds;
+    // Play first countdown beep immediately
+    _audioService.playCountdownBeep();
     notifyListeners();
     _startTimer();
   }
@@ -63,6 +69,8 @@ class TimerService extends ChangeNotifier {
   void _startWork() {
     _state = TimerState.work;
     _currentSeconds = _workSeconds;
+    // Play whistle to signal start of work
+    _audioService.playWhistle();
     notifyListeners();
     _startTimer();
   }
@@ -84,6 +92,18 @@ class TimerService extends ChangeNotifier {
   void _tick() {
     if (_currentSeconds > 1) {
       _currentSeconds--;
+      // Play countdown beep for each second during countdown
+      if (_state == TimerState.countdown) {
+        _audioService.playCountdownBeep();
+      }
+      // Play countdown beep in last 3 seconds of work period
+      if (_state == TimerState.work && _currentSeconds <= 3) {
+        _audioService.playCountdownBeep();
+      }
+      // Play countdown beep in last 3 seconds of rest period
+      if (_state == TimerState.rest && _currentSeconds <= 3) {
+        _audioService.playCountdownBeep();
+      }
       notifyListeners();
       return;
     }
@@ -96,6 +116,8 @@ class TimerService extends ChangeNotifier {
         _startWork();
         break;
       case TimerState.work:
+        // Play bell when work ends
+        _audioService.playBell();
         if (_currentSet < _totalSets) {
           _currentSet++;
           _startRest();
@@ -104,7 +126,8 @@ class TimerService extends ChangeNotifier {
         }
         break;
       case TimerState.rest:
-        _startCountdown();
+        // Go directly to work - countdown was integrated into last 3 seconds of rest
+        _startWork();
         break;
       case TimerState.idle:
       case TimerState.finished:
