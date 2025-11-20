@@ -1,7 +1,5 @@
 FROM cirrusci/flutter:stable
 
-WORKDIR /app
-
 # Install additional dependencies
 RUN apt-get update && apt-get install -y \
     openjdk-17-jdk \
@@ -15,5 +13,19 @@ RUN yes | flutter doctor --android-licenses || true
 
 # Pre-cache Flutter dependencies
 RUN flutter precache
+
+# Create non-root user
+RUN groupadd -r flutter && useradd -r -g flutter -m -d /home/flutter flutter
+
+# Set up Flutter SDK permissions for the new user
+RUN chown -R flutter:flutter /sdks/flutter
+
+# Create app directory and set ownership
+RUN mkdir -p /app && chown -R flutter:flutter /app
+
+# Switch to non-root user
+USER flutter
+
+WORKDIR /app
 
 ENTRYPOINT ["flutter"]
