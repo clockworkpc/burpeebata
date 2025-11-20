@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  flutter:
+    build: .
+    volumes:
+      - .:/app
+      - flutter-pub-cache:/root/.pub-cache
+    working_dir: /app
+    environment:
+      - GRADLE_USER_HOME=/app/.gradle
+    # For Android device access (optional)
+    # devices:
+    #   - /dev/bus/usb:/dev/bus/usb
+
+volumes:
+  flutter-pub-cache:
