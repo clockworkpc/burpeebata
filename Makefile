@@ -25,3 +25,6 @@ logs:
 
 ps:
 	docker compose ps
+
+doctor:
+	docker compose exec flutter flutter doctor
