@@ -234,7 +234,7 @@ void main() {
 
           // At 3 seconds elapsed (3 -> 2), another beep
           async.elapse(const Duration(seconds: 1));
-          verify(mockAudioService.playCountdownBeep()).called(2);
+          verify(mockAudioService.playCountdownBeep()).called(1);
         });
       });
 
@@ -254,11 +254,11 @@ void main() {
 
           // Continue to 2 seconds remaining
           async.elapse(const Duration(seconds: 1));
-          verify(mockAudioService.playCountdownBeep()).called(2);
+          verify(mockAudioService.playCountdownBeep()).called(1);
 
           // Continue to 1 second remaining
           async.elapse(const Duration(seconds: 1));
-          verify(mockAudioService.playCountdownBeep()).called(3);
+          verify(mockAudioService.playCountdownBeep()).called(1);
         });
       });
     });

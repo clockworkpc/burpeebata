@@ -45,9 +45,10 @@ void main() {
       testWidgets('increments Reps per Set by 1', (tester) async {
         await tester.pumpWidget(createTestWidget());
 
-        // Find the first add button (Reps per Set)
+        // Find the Reps per Set add button (index 3)
+        // Order: Initial Countdown (0), Number of Sets (1), Seconds per Set (2), Reps per Set (3), Rest Between Sets (4)
         final addButtons = find.byIcon(Icons.add);
-        await tester.tap(addButtons.first);
+        await tester.tap(addButtons.at(3));
         await tester.pump();
 
         // Value should increase from 5 to 6
@@ -57,10 +58,11 @@ void main() {
       testWidgets('does not exceed maximum value', (tester) async {
         await tester.pumpWidget(createTestWidget());
 
-        // Tap the Reps per Set add button 20 times (10 + 20 = 30, which is max)
+        // Tap the Reps per Set add button 25 times (5 + 25 = 30, which is max)
         final addButtons = find.byIcon(Icons.add);
+        final repsAddButton = addButtons.at(3);
         for (int i = 0; i < 25; i++) {
-          await tester.tap(addButtons.first);
+          await tester.tap(repsAddButton);
           await tester.pump();
         }
 
@@ -73,15 +75,16 @@ void main() {
 
         // Tap to reach maximum (from 5 to 30)
         final addButtons = find.byIcon(Icons.add);
+        final repsAddButton = addButtons.at(3);
         for (int i = 0; i < 25; i++) {
-          await tester.tap(addButtons.first);
+          await tester.tap(repsAddButton);
           await tester.pump();
         }
 
         // The button should still be there but disabled
         final addButton = tester.widget<IconButton>(
           find.ancestor(
-            of: addButtons.first,
+            of: repsAddButton,
             matching: find.byType(IconButton),
           ),
         );
@@ -93,9 +96,10 @@ void main() {
       testWidgets('decrements Reps per Set by 1', (tester) async {
         await tester.pumpWidget(createTestWidget());
 
-        // Find the first remove button (Reps per Set)
+        // Find the Reps per Set remove button (index 3)
+        // Order: Initial Countdown (0), Number of Sets (1), Seconds per Set (2), Reps per Set (3), Rest Between Sets (4)
         final removeButtons = find.byIcon(Icons.remove);
-        await tester.tap(removeButtons.first);
+        await tester.tap(removeButtons.at(3));
         await tester.pump();
 
         // Value should decrease from 5 to 4
@@ -108,8 +112,9 @@ void main() {
 
         // Tap the Reps per Set remove button many times
         final removeButtons = find.byIcon(Icons.remove);
+        final repsRemoveButton = removeButtons.at(3);
         for (int i = 0; i < 15; i++) {
-          await tester.tap(removeButtons.first);
+          await tester.tap(repsRemoveButton);
           await tester.pump();
         }
 
@@ -122,15 +127,16 @@ void main() {
 
         // Tap to reach minimum (from 5 to 1)
         final removeButtons = find.byIcon(Icons.remove);
+        final repsRemoveButton = removeButtons.at(3);
         for (int i = 0; i < 5; i++) {
-          await tester.tap(removeButtons.first);
+          await tester.tap(repsRemoveButton);
           await tester.pump();
         }
 
         // The button should be disabled
         final removeButton = tester.widget<IconButton>(
           find.ancestor(
-            of: removeButtons.first,
+            of: repsRemoveButton,
             matching: find.byType(IconButton),
           ),
         );
@@ -140,9 +146,9 @@ void main() {
       testWidgets('Rest Between Sets can go to 0', (tester) async {
         await tester.pumpWidget(createTestWidget());
 
-        // Find the fourth remove button (Rest Between Sets)
+        // Find the Rest Between Sets remove button (index 4)
         final removeButtons = find.byIcon(Icons.remove);
-        final restRemoveButton = removeButtons.at(3);
+        final restRemoveButton = removeButtons.at(4);
 
         // Tap 4 times (default is 4, min is 0)
         for (int i = 0; i < 4; i++) {
@@ -159,9 +165,10 @@ void main() {
       testWidgets('accepts valid integer input', (tester) async {
         await tester.pumpWidget(createTestWidget());
 
-        // Find the first text field (Reps per Set)
+        // Find the Reps per Set text field (index 3)
+        // Order: Initial Countdown (0), Number of Sets (1), Seconds per Set (2), Reps per Set (3), Rest Between Sets (4)
         final textFields = find.byType(TextFormField);
-        await tester.enterText(textFields.first, '15');
+        await tester.enterText(textFields.at(3), '15');
         await tester.pump();
 
         // Value should be updated
@@ -172,7 +179,7 @@ void main() {
         await tester.pumpWidget(createTestWidget());
 
         final textFields = find.byType(TextFormField);
-        await tester.enterText(textFields.first, '50');
+        await tester.enterText(textFields.at(3), '50');
         await tester.pump();
 
         // Value should be clamped to 30 (max for Reps per Set)
@@ -183,7 +190,7 @@ void main() {
         await tester.pumpWidget(createTestWidget());
 
         final textFields = find.byType(TextFormField);
-        await tester.enterText(textFields.first, '0');
+        await tester.enterText(textFields.at(3), '0');
         await tester.pump();
 
         // Value should be clamped to 1 (min for Reps per Set)
@@ -195,9 +202,10 @@ void main() {
       testWidgets('Seconds per Set respects 1-60 range', (tester) async {
         await tester.pumpWidget(createTestWidget());
 
-        // Find second set of buttons (Seconds per Set)
+        // Find Seconds per Set add button (index 2)
+        // Order: Initial Countdown (0), Number of Sets (1), Seconds per Set (2), Reps per Set (3), Rest Between Sets (4)
         final addButtons = find.byIcon(Icons.add);
-        final secondsAddButton = addButtons.at(1);
+        final secondsAddButton = addButtons.at(2);
 
         // Tap to reach maximum (from 20 to 60)
         for (int i = 0; i < 45; i++) {
@@ -212,9 +220,10 @@ void main() {
       testWidgets('Number of Sets respects 1-20 range', (tester) async {
         await tester.pumpWidget(createTestWidget());
 
-        // Find third set of buttons (Number of Sets)
+        // Find Number of Sets add button (index 1)
+        // Order: Initial Countdown (0), Number of Sets (1), Seconds per Set (2), Reps per Set (3), Rest Between Sets (4)
         final addButtons = find.byIcon(Icons.add);
-        final setsAddButton = addButtons.at(2);
+        final setsAddButton = addButtons.at(1);
 
         // Tap to reach maximum (from 10 to 20)
         for (int i = 0; i < 15; i++) {
@@ -237,8 +246,10 @@ void main() {
         expect(find.text('10 sets \u00d7 5 reps = 50 total reps'), findsOneWidget);
 
         // Increase number of sets from 10 to 11
+        // Number of Sets is at index 1
+        // Order: Initial Countdown (0), Number of Sets (1), Seconds per Set (2), Reps per Set (3), Rest Between Sets (4)
         final addButtons = find.byIcon(Icons.add);
-        final setsAddButton = addButtons.at(2);
+        final setsAddButton = addButtons.at(1);
         await tester.tap(setsAddButton);
         await tester.pump();
 
@@ -251,8 +262,9 @@ void main() {
         await tester.pumpWidget(createTestWidget());
 
         // Increase reps per set from 5 to 6
+        // Reps per Set is the 4th input (index 3) after Initial Countdown, Number of Sets, Seconds per Set
         final addButtons = find.byIcon(Icons.add);
-        await tester.tap(addButtons.first);
+        await tester.tap(addButtons.at(3));
         await tester.pump();
 
         expect(find.text('10 sets \u00d7 6 reps = 60 total reps'), findsOneWidget);
