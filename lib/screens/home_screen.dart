@@ -18,7 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Burbata'),
+        title: const Text('BurpeeBata'),
         centerTitle: true,
         actions: [
           IconButton(
@@ -115,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
             _buildSlider(
               label: 'Seconds per Set',
               value: _config.secondsPerSet,
-              min: 10,
+              min: 1,
               max: 60,
               onChanged: (value) {
                 setState(() {
@@ -137,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
             _buildSlider(
               label: 'Rest Between Sets (sec)',
               value: _config.restBetweenSets,
-              min: 5,
+              min: 0,
               max: 60,
               onChanged: (value) {
                 setState(() {

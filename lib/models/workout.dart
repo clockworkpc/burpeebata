@@ -92,7 +92,7 @@ class Workout {
     final status = completed ? 'Completed' : 'Attempted';
     final formattedDate = '${date.month}/${date.day}/${date.year}';
     return '''
-Burbata Workout - $formattedDate
+BurpeeBata Workout - $formattedDate
 $status: ${burpeeType.displayName}
 Sets: $completedSets/$numberOfSets
 Total Reps: $totalReps

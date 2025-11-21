@@ -25,7 +25,11 @@ class _TimerScreenState extends State<TimerScreen> {
     super.initState();
     Wakelock.enable();
     _timerService.addListener(_onTimerUpdate);
-    _timerService.startWorkout(widget.config);
+    _startWorkout();
+  }
+
+  Future<void> _startWorkout() async {
+    await _timerService.startWorkout(widget.config);
   }
 
   @override
@@ -117,6 +121,14 @@ class _TimerScreenState extends State<TimerScreen> {
   }
 
   Color _getBackgroundColor() {
+    // Show red during countdown periods (last 3 seconds of work or rest)
+    if (_timerService.state == TimerState.work && _timerService.currentSeconds <= 3) {
+      return Colors.red;
+    }
+    if (_timerService.state == TimerState.rest && _timerService.currentSeconds <= 3) {
+      return Colors.red;
+    }
+
     switch (_timerService.state) {
       case TimerState.countdown:
         return Colors.orange;

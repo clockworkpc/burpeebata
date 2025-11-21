@@ -1,3 +1,5 @@
+.PHONY: up up-build build stop down clean restart logs ps doctor apk test
+
 # Frontend targets
 up:
 	docker compose up -d
@@ -25,3 +27,15 @@ logs:
 
 ps:
 	docker compose ps
+
+doctor:
+	docker compose exec flutter flutter doctor
+
+apk:
+	docker compose exec flutter flutter build apk --release --verbose
+
+test:
+	docker compose exec flutter flutter test
+
+mocks:
+	docker compose exec flutter flutter pub run build_runner build
