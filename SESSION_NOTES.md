@@ -1,4 +1,4 @@
-# Burbata - Flutter Tabata Timer for Burpee Workouts
+# BurpeeBata - Flutter Tabata Timer for Burpee Workouts
 
 ## Session Date: 2025-11-20
 

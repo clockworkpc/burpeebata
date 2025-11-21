@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
 
 void main() {
-  runApp(const BurbataApp());
+  runApp(const BurpeeBataApp());
 }
 
-class BurbataApp extends StatelessWidget {
-  const BurbataApp({super.key});
+class BurpeeBataApp extends StatelessWidget {
+  const BurpeeBataApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Burbata',
+      title: 'BurpeeBata',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,

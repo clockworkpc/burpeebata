@@ -19,9 +19,12 @@ class TimerService extends ChangeNotifier {
   int _totalSets = 0;
   int _workSeconds = 0;
   int _restSeconds = 0;
-  final AudioService _audioService = AudioService();
+  final AudioService _audioService;
 
   static const int _countdownSeconds = 3;
+
+  TimerService({AudioService? audioService})
+      : _audioService = audioService ?? AudioService();
 
   TimerState get state => _state;
   int get currentSeconds => _currentSeconds;
