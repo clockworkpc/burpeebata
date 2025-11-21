@@ -2,12 +2,12 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "git clone https://github.com/flutter/flutter.git -b stable && flutter/bin/flutter --version && flutter/bin/flutter config --enable-web",
-  "buildCommand": "flutter/bin/flutter build web --release",
+  "buildCommand": "flutter/bin/flutter build web --release --base-href /",
   "outputDirectory": "build/web",
-  "routes": [
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/((?!.*\\.).*)",
+      "destination": "/index.html"
     }
   ]
 }
