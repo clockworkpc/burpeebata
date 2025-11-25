@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/burpee_type.dart';
 import '../models/workout_config.dart';
+import '../models/workout_template.dart';
 import 'timer_screen.dart';
 import 'history_screen.dart';
+import 'saved_workouts_screen.dart';
+import 'workout_builder_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,16 +17,63 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final Map<BurpeeType, WorkoutConfig> _configs = {
-  BurpeeType.militarySixCount: WorkoutConfig.forBurpeeType(BurpeeType.militarySixCount),
-  BurpeeType.navySeal: WorkoutConfig.forBurpeeType(BurpeeType.navySeal),
-};
+    BurpeeType.militarySixCount:
+        WorkoutConfig.forBurpeeType(BurpeeType.militarySixCount),
+    BurpeeType.navySeal: WorkoutConfig.forBurpeeType(BurpeeType.navySeal),
+  };
   BurpeeType _selectedType = BurpeeType.militarySixCount;
+  WorkoutTemplate? _loadedTemplate;
 
   WorkoutConfig get _config => _configs[_selectedType]!;
 
   void _updateConfig(WorkoutConfig newConfig) {
     setState(() {
       _configs[_selectedType] = newConfig;
+    });
+  }
+
+  Future<void> _loadSavedWorkout() async {
+    final template = await Navigator.push<WorkoutTemplate>(
+      context,
+      MaterialPageRoute(builder: (_) => const SavedWorkoutsScreen()),
+    );
+
+    if (template != null) {
+      setState(() {
+        _loadedTemplate = template;
+        _selectedType = template.burpeeType;
+        _configs[_selectedType] = template.toConfig();
+      });
+    }
+  }
+
+  Future<void> _createNewWorkout() async {
+    final template = await Navigator.push<WorkoutTemplate>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => WorkoutBuilderScreen(
+          existingTemplate: _loadedTemplate != null
+              ? WorkoutTemplate.fromConfig(
+                  name: _loadedTemplate!.name,
+                  config: _config,
+                )
+              : null,
+        ),
+      ),
+    );
+
+    if (template != null) {
+      setState(() {
+        _loadedTemplate = template;
+        _selectedType = template.burpeeType;
+        _configs[_selectedType] = template.toConfig();
+      });
+    }
+  }
+
+  void _clearLoadedTemplate() {
+    setState(() {
+      _loadedTemplate = null;
     });
   }
 
@@ -50,6 +100,10 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            _buildWorkoutTemplateSection(),
+            const SizedBox(height: 24),
+            if (_loadedTemplate != null) _buildLoadedTemplateInfo(),
+            if (_loadedTemplate != null) const SizedBox(height: 24),
             _buildBurpeeTypeSelector(),
             const SizedBox(height: 24),
             _buildConfigCard(),
@@ -57,6 +111,83 @@ class _HomeScreenState extends State<HomeScreen> {
             _buildWorkoutSummary(),
             const SizedBox(height: 32),
             _buildStartButton(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWorkoutTemplateSection() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Workout Templates',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _loadSavedWorkout,
+                    icon: const Icon(Icons.folder_open),
+                    label: const Text('Load Saved'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _createNewWorkout,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Create New'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoadedTemplateInfo() {
+    return Card(
+      color: Theme.of(context).colorScheme.primaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Icon(
+              Icons.check_circle,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Loaded Template',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  Text(
+                    _loadedTemplate!.name,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              onPressed: _clearLoadedTemplate,
+              icon: const Icon(Icons.close),
+              tooltip: 'Clear template',
+            ),
           ],
         ),
       ),
@@ -119,6 +250,7 @@ class _HomeScreenState extends State<HomeScreen> {
               value: _config.initialCountdown,
               min: 3,
               max: 30,
+              buttonColor: Colors.blue,
               onChanged: (value) {
                 _updateConfig(_config.copyWith(initialCountdown: value));
               },
@@ -128,6 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
               value: _config.numberOfSets,
               min: 1,
               max: 20,
+              buttonColor: Colors.purple,
               onChanged: (value) {
                 _updateConfig(_config.copyWith(numberOfSets: value));
               },
@@ -137,6 +270,7 @@ class _HomeScreenState extends State<HomeScreen> {
               value: _config.secondsPerSet,
               min: 1,
               max: 60,
+              buttonColor: Colors.orange,
               onChanged: (value) {
                 _updateConfig(_config.copyWith(secondsPerSet: value));
               },
@@ -146,6 +280,7 @@ class _HomeScreenState extends State<HomeScreen> {
               value: _config.repsPerSet,
               min: 1,
               max: 30,
+              buttonColor: Colors.teal,
               onChanged: (value) {
                 _updateConfig(_config.copyWith(repsPerSet: value));
               },
@@ -155,6 +290,7 @@ class _HomeScreenState extends State<HomeScreen> {
               value: _config.restBetweenSets,
               min: 0,
               max: 60,
+              buttonColor: Colors.indigo,
               onChanged: (value) {
                 _updateConfig(_config.copyWith(restBetweenSets: value));
               },
@@ -170,6 +306,7 @@ class _HomeScreenState extends State<HomeScreen> {
     required int value,
     required int min,
     required int max,
+    required Color buttonColor,
     required ValueChanged<int> onChanged,
   }) {
     return Padding(
@@ -182,13 +319,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.remove),
-            onPressed: value > min
-            ? () => onChanged(value - 1)
-            : null,
+            onPressed: value > min ? () => onChanged(value - 1) : null,
             style: IconButton.styleFrom(
               backgroundColor: value > min
-              ? Theme.of(context).colorScheme.primaryContainer
-              : Theme.of(context).colorScheme.surfaceVariant,
+                  ? buttonColor.withOpacity(0.2)
+                  : Theme.of(context).colorScheme.surfaceVariant,
+              foregroundColor: value > min ? buttonColor : null,
             ),
           ),
           const SizedBox(width: 8),
@@ -202,7 +338,8 @@ class _HomeScreenState extends State<HomeScreen> {
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: const InputDecoration(
                 isDense: true,
-                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                 border: OutlineInputBorder(),
               ),
               onChanged: (text) {
@@ -225,13 +362,12 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: value < max
-            ? () => onChanged(value + 1)
-            : null,
+            onPressed: value < max ? () => onChanged(value + 1) : null,
             style: IconButton.styleFrom(
               backgroundColor: value < max
-              ? Theme.of(context).colorScheme.primaryContainer
-              : Theme.of(context).colorScheme.surfaceVariant,
+                  ? buttonColor.withOpacity(0.2)
+                  : Theme.of(context).colorScheme.surfaceVariant,
+              foregroundColor: value < max ? buttonColor : null,
             ),
           ),
         ],
