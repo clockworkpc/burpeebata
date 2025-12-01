@@ -40,18 +40,40 @@ make doctor
 
 ### Directory Structure
 - `lib/` - Main application code
-  - `main.dart` - App entry point, MaterialApp configuration with light/dark themes
-  - `screens/` - UI screens (HomeScreen, TimerScreen, HistoryScreen)
-  - `models/` - Data models (Workout, WorkoutConfig, BurpeeType)
-  - `services/` - Business logic (TimerService, StorageService, AudioService)
+  - `main.dart` - App entry point with Firebase initialization and Provider setup
+  - `screens/` - UI screens
+    - Authentication: LoginScreen, SignupScreen, AuthWrapper
+    - Main: HomeScreen, TimerScreen, HistoryScreen, ProfileScreen
+    - Workouts: SavedWorkoutsScreen, WorkoutBuilderScreen
+  - `models/` - Data models
+    - Workout data: Workout, WorkoutConfig, BurpeeType, WorkoutTemplate
+    - User data: UserProfile (with optional fields)
+  - `services/` - Business logic
+    - Workout: TimerService, StorageService, AudioService
+    - User: AuthService (Firebase Auth), UserService (Firestore)
+  - `providers/` - State management (Provider pattern)
+    - AuthProvider - Authentication state and user profile
 - `test/` - Test files mirror lib structure
 - `assets/audio/` - Audio files for workout cues
 
 ### Key Dependencies
+
+**Authentication & Data:**
+- `firebase_core` - Firebase initialization
+- `firebase_auth` - User authentication (email/password, anonymous)
+- `cloud_firestore` - User profile storage in cloud
+- `provider` - State management for authentication
+
+**Workout Features:**
 - `shared_preferences` - Local storage for workout history
 - `audioplayers` - Audio playback for timer cues
-- `wakelock` - Keep screen awake during workout
+- `wakelock_plus` - Keep screen awake during workout
+- `uuid` - Unique ID generation
+- `share_plus` - Share workout results
+
+**Development:**
 - `mockito` + `build_runner` - Test mocking
+- `flutter_lints` - Linting rules
 
 ## Testing
 
@@ -61,6 +83,33 @@ To regenerate mocks after adding new mock annotations:
 ```bash
 make mocks
 ```
+
+## Authentication & User Profiles
+
+BurpeeBata uses Firebase for authentication and user data storage.
+
+### Authentication Methods
+- **Email/Password** - Standard sign-up and login
+- **Anonymous** - Guest access (perfect for app store reviewers)
+- Users can convert anonymous accounts to permanent accounts
+
+### User Profile (Optional)
+All profile fields are optional:
+- Name
+- Age
+- Sex (Male/Female, defaults to Male)
+- Height (cm)
+- Weight (kg)
+
+### Firebase Setup
+See `FIREBASE_SETUP.md` for complete configuration instructions.
+
+### App Store Reviewer Access
+See `APP_STORE_REVIEWER_ACCESS.md` for credentials and access instructions.
+
+**Quick Access for Reviewers:**
+- Tap "Continue as Guest" on login screen (no credentials needed)
+- OR use demo account: `reviewer@burpeebata.com` / `Reviewer2025!`
 
 ## Linting
 

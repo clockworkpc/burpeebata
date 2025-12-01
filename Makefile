@@ -20,7 +20,7 @@ clean:
 	docker compose down -v
 
 restart:
-	docker compose restart
+	docker compose restart && docker compose logs -f
 
 logs:
 	docker compose logs -f
@@ -42,3 +42,6 @@ mocks:
 
 build-web:
 	docker compose exec flutter flutter build web --release --verbose
+
+pub-get:
+	docker compose exec flutter flutter pub get

@@ -50,6 +50,14 @@ dependencies:
   # Audio playback for timer cues
   audioplayers: ^6.0.0
 
+  # Firebase for authentication and user data
+  firebase_core: ^3.3.0
+  firebase_auth: ^5.1.4
+  cloud_firestore: ^5.2.1
+
+  # State management for authentication
+  provider: ^6.1.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
