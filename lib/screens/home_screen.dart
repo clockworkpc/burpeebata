@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../models/burpee_type.dart';
 import '../models/workout_config.dart';
 import '../models/workout_template.dart';
+import '../providers/auth_provider.dart';
 import 'timer_screen.dart';
 import 'history_screen.dart';
 import 'saved_workouts_screen.dart';
 import 'workout_builder_screen.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -93,6 +96,54 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
           ),
+          Consumer<AuthProvider>(
+            builder: (context, authProvider, _) {
+              return PopupMenuButton<String>(
+                icon: const Icon(Icons.account_circle),
+                tooltip: 'Account',
+                onSelected: (value) async {
+                  switch (value) {
+                    case 'profile':
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                      );
+                      break;
+                    case 'signout':
+                      await authProvider.signOut();
+                      break;
+                  }
+                },
+                itemBuilder: (context) {
+                  return [
+                    if (!authProvider.isAnonymous)
+                      const PopupMenuItem(
+                        value: 'profile',
+                        child: Row(
+                          children: [
+                            Icon(Icons.person),
+                            SizedBox(width: 8),
+                            Text('Profile'),
+                          ],
+                        ),
+                      ),
+                    PopupMenuItem(
+                      value: 'signout',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.logout),
+                          const SizedBox(width: 8),
+                          Text(authProvider.isAnonymous
+                              ? 'Sign In'
+                              : 'Sign Out'),
+                        ],
+                      ),
+                    ),
+                  ];
+                },
+              );
+            },
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -100,6 +151,43 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Consumer<AuthProvider>(
+              builder: (context, authProvider, _) {
+                if (authProvider.isAnonymous) {
+                  return Card(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    margin: const EdgeInsets.only(bottom: 16),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            color: Theme.of(context).colorScheme.onSecondaryContainer,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'You\'re in guest mode. Sign up to save your data!',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSecondaryContainer,
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              await authProvider.signOut();
+                            },
+                            child: const Text('Sign Up'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
             _buildWorkoutTemplateSection(),
             const SizedBox(height: 24),
             if (_loadedTemplate != null) _buildLoadedTemplateInfo(),

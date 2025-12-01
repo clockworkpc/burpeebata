@@ -1,7 +1,21 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
+import 'providers/auth_provider.dart';
+import 'screens/auth_wrapper.dart';
+import 'firebase_options.dart' as dev;
+import 'firebase_options_prod.dart' as prod;
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Use production Firebase for production builds, dev Firebase otherwise
+  const isProduction = bool.fromEnvironment('PRODUCTION', defaultValue: false);
+  final firebaseOptions = isProduction
+      ? prod.DefaultFirebaseOptions.currentPlatform
+      : dev.DefaultFirebaseOptions.currentPlatform;
+
+  await Firebase.initializeApp(options: firebaseOptions);
   runApp(const BurpeeBataApp());
 }
 
@@ -10,7 +24,9 @@ class BurpeeBataApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return ChangeNotifierProvider(
+      create: (_) => AuthProvider(),
+      child: MaterialApp(
       title: 'BurpeeBata',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -61,7 +77,8 @@ class BurpeeBataApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const HomeScreen(),
+      home: const AuthWrapper(),
+      ),
     );
   }
 }
