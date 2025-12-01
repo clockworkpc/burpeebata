@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import '../models/workout_config.dart';
 import '../models/workout.dart';
 import '../models/burpee_type.dart';
 import '../services/timer_service.dart';
 import '../services/storage_service.dart';
+import '../services/workout_service.dart';
+import '../providers/auth_provider.dart';
 import 'package:uuid/uuid.dart';
 
 class TimerScreen extends StatefulWidget {
@@ -18,6 +21,7 @@ class TimerScreen extends StatefulWidget {
 
 class _TimerScreenState extends State<TimerScreen> {
   final TimerService _timerService = TimerService();
+  final WorkoutService _workoutService = WorkoutService();
   bool _isPaused = false;
 
   @override
@@ -60,7 +64,21 @@ class _TimerScreenState extends State<TimerScreen> {
       completedSets: completed ? widget.config.numberOfSets : _timerService.completedSets,
     );
 
+    // Save to local storage
     await StorageService.saveWorkout(workout);
+
+    // Save to Firestore if user is authenticated and not anonymous
+    if (mounted) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      if (authProvider.isAuthenticated && !authProvider.isAnonymous) {
+        try {
+          await _workoutService.saveWorkout(authProvider.user!.uid, workout);
+        } catch (e) {
+          // Log error but don't fail the save - local storage already succeeded
+          debugPrint('Failed to save workout to Firestore: $e');
+        }
+      }
+    }
   }
 
   void _togglePause() {

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:burpeebata/screens/home_screen.dart';
+import '../helpers/firebase_test_helper.dart';
 
 void main() {
   Widget createTestWidget() {
-    return const MaterialApp(
-      home: HomeScreen(),
+    return wrapWithProviders(
+      const MaterialApp(
+        home: HomeScreen(),
+      ),
     );
   }
 
