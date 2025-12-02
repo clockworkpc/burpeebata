@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../models/workout.dart';
 import '../models/burpee_type.dart';
 import '../services/storage_service.dart';
+import '../services/workout_service.dart';
+import '../providers/auth_provider.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -12,6 +15,7 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
+  final WorkoutService _workoutService = WorkoutService();
   List<Workout> _workouts = [];
   bool _isLoading = true;
 
@@ -22,7 +26,24 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Future<void> _loadWorkouts() async {
-    final workouts = await StorageService.getWorkouts();
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    List<Workout> workouts;
+
+    // If user is authenticated and not anonymous, load from Firestore
+    if (authProvider.isAuthenticated && !authProvider.isAnonymous) {
+      try {
+        workouts = await _workoutService.getWorkouts(authProvider.user!.uid);
+      } catch (e) {
+        // Fall back to local storage if Firestore fails
+        debugPrint('Failed to load workouts from Firestore: $e');
+        workouts = await StorageService.getWorkouts();
+      }
+    } else {
+      // For anonymous/guest users, load from local storage
+      workouts = await StorageService.getWorkouts();
+    }
+
     setState(() {
       _workouts = workouts;
       _isLoading = false;
@@ -48,8 +69,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
       ),
     );
 
-    if (confirmed == true) {
+    if (confirmed == true && mounted) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+      // Delete from local storage
       await StorageService.deleteWorkout(workout.id);
+
+      // Delete from Firestore if user is authenticated and not anonymous
+      if (authProvider.isAuthenticated && !authProvider.isAnonymous) {
+        try {
+          await _workoutService.deleteWorkout(authProvider.user!.uid, workout.id);
+        } catch (e) {
+          debugPrint('Failed to delete workout from Firestore: $e');
+        }
+      }
+
       await _loadWorkouts();
     }
   }

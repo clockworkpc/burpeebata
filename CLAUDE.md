@@ -111,6 +111,85 @@ See `APP_STORE_REVIEWER_ACCESS.md` for credentials and access instructions.
 - Tap "Continue as Guest" on login screen (no credentials needed)
 - OR use demo account: `reviewer@burpeebata.com` / `Reviewer2025!`
 
+## Workout Storage Architecture
+
+### Current Implementation (Local Only)
+**File**: `lib/services/storage_service.dart`
+
+Workouts are currently stored in **SharedPreferences** (device-local only):
+- **Key**: `'workouts'` - JSON-encoded list of completed/partial workouts
+- **Key**: `'workout_templates'` - JSON-encoded list of saved templates
+- **Limitation**: Data is per-device only, not synced across devices
+
+**Operations:**
+- `saveWorkout()` - Adds workout to local storage
+- `getWorkouts()` - Retrieves all workouts (sorted newest first)
+- `deleteWorkout()` - Removes specific workout
+- `clearAllWorkouts()` - Wipes all workout history
+
+### Workout Data Flow
+
+**Workout Execution**: `lib/screens/timer_screen.dart`
+1. User starts workout with `WorkoutConfig`
+2. `TimerService` manages countdown and state
+3. Completion triggers save via `_saveWorkout()`:
+   - Normal completion → `completed: true`
+   - Early end → `completed: false` with partial sets
+   - Back navigation → Shows dialog, saves on confirm
+4. Data saved to SharedPreferences only
+
+**Workout Model**: `lib/models/workout.dart`
+```dart
+class Workout {
+  final String id;              // UUID v4
+  final DateTime date;
+  final BurpeeType burpeeType;  // militarySixCount or navySeal
+  final int repsPerSet;
+  final int secondsPerSet;
+  final int numberOfSets;
+  final int restBetweenSets;
+  final bool completed;         // true if all sets finished
+  final int completedSets;      // actual sets completed
+
+  // Calculated properties
+  int get totalReps => repsPerSet * completedSets;
+  String get shareText => // Formatted for sharing
+}
+```
+
+**Workout Display**: `lib/screens/history_screen.dart`
+- Loads from `StorageService.getWorkouts()`
+- Shows: date, time, burpee type, sets, reps, completion status
+- Actions: Share (via `share_plus`), Delete (with confirmation)
+
+### Future: Cloud Storage (Not Yet Implemented)
+
+To sync workouts to Firestore (following the UserService pattern):
+
+**Proposed Structure**:
+```
+Firestore
+└── users/{userId}
+    ├── (user profile fields)
+    └── workouts (subcollection)
+        └── {workoutId}
+            ├── date
+            ├── burpeeType
+            ├── repsPerSet
+            ├── secondsPerSet
+            ├── numberOfSets
+            ├── restBetweenSets
+            ├── completed
+            └── completedSets
+```
+
+**Implementation would require**:
+1. New `WorkoutService` (similar to `lib/services/user_service.dart`)
+2. Firestore security rules to isolate user workouts
+3. Modifications to `TimerScreen` to sync after local save
+4. Modifications to `HistoryScreen` to load from Firestore when authenticated
+5. Offline-first approach with local cache
+
 ## Linting
 
 Uses `flutter_lints` package. Run analysis with:
